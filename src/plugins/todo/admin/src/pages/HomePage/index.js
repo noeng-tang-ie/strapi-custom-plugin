@@ -4,7 +4,7 @@
  *
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
 
 import { BaseHeaderLayout, ContentLayout } from '@strapi/design-system';
@@ -16,7 +16,8 @@ import Plus from "@strapi/icons/Plus";
 import TodoModal from "../../components/TodoModal";
 import TodoCount from '../../components/TodoCount';
 import TodoTable from "../../components/TodoTable";
-
+import todoRequests from '../../api/todo';
+import { LoadingIndicatorPage } from "@strapi/helper-plugin";
 const HomePage = () => {
   const [todoData, setTodoData] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -25,17 +26,40 @@ const HomePage = () => {
     setTodoData([...todoData, { ...data, id: nanoid(), isDone: false }]);
   }
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    if (isLoading === false) setIsLoading(true);
+
+    const todo = await todoRequests.getAllTodos();
+    setTodoData(todo);
+    setIsLoading(false);
+  };
+
+  useEffect( () => {
+    fetchData();
+  }, []);
+
+  async function addTodo(data) {
+    await todoRequests.addTodo(data);
+    await fetchData();
+  }
+
   async function toggleTodo(data) {
-    alert("Add Toggle Todo in API");
+    await todoRequests.toggleTodo(data.id);
   }
 
   async function deleteTodo(data) {
-    alert("Add Delete Todo in API");
+    await todoRequests.deleteTodo(data.id);
+    await fetchData();
   }
 
   async function editTodo(id, data) {
-    alert("Add Edit Todo in API");
+    await todoRequests.editTodo(id, data);
+    await fetchData();
   }
+
+  if (isLoading) return <LoadingIndicatorPage />;
 
   return (
     <>

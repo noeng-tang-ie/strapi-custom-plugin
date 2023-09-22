@@ -1,5 +1,7 @@
 'use strict';
 
-module.exports = ({ strapi }) => {
-  // destroy phase
-};
+module.exports = () => ({
+  destroy({ strapi }) {
+    // execute some destroy code
+  },
+});
